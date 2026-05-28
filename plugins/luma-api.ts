@@ -1,5 +1,5 @@
 import type { Plugin, PreviewServer, ViteDevServer } from 'vite'
-import { writeFileSync } from 'node:fs'
+import { writeFileSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { getSiteEvents } from '../server/luma'
 
@@ -46,16 +46,30 @@ export function lumaApiPlugin(): Plugin {
       attachEventsHandler(server, apiKey)
     },
     async buildStart() {
-      if (!apiKey) return
+      if (!apiKey) {
+        this.warn('LUMA_API_KEY is not set — events.json will not be generated at build time.')
+        return
+      }
 
       try {
         const payload = await getSiteEvents(apiKey)
-        const outputPath = resolve(process.cwd(), 'public/events.json')
-        writeFileSync(outputPath, JSON.stringify(payload, null, 2))
+        const json = JSON.stringify(payload, null, 2)
+        writeFileSync(resolve(process.cwd(), 'public/events.json'), json)
       } catch (error) {
         this.warn(
           `Could not prefetch Luma events: ${error instanceof Error ? error.message : error}`,
         )
+      }
+    },
+    writeBundle() {
+      if (!apiKey) return
+
+      try {
+        const publicPath = resolve(process.cwd(), 'public/events.json')
+        const distPath = resolve(process.cwd(), 'dist/events.json')
+        writeFileSync(distPath, readFileSync(publicPath, 'utf8'))
+      } catch {
+        // buildStart already warned if prefetch failed.
       }
     },
   }
