@@ -10,8 +10,5 @@
   },
   "observability": {
     "enabled": true
-  },
-  "vars": {
-    "LUMA_CALENDAR_ID": "cal-94zoOAtNpqPIIHm"
   }
 }

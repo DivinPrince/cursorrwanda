@@ -1,0 +1,15 @@
+{
+  "upcoming": [],
+  "past": [
+    {
+      "id": "evt-6hwfkYWsHpf0Eox",
+      "title": "Cafe Cursor Kigali",
+      "date": "Mar 17, 2026",
+      "location": "Rubia Coffee Roasters, KG 2 Ave, Kigali, Rwanda",
+      "description": "Community event on the Cursor Kigali calendar.",
+      "status": "Past",
+      "url": "https://luma.com/i1n0m8q7"
+    }
+  ],
+  "fetchedAt": "2026-05-28T22:10:17.437Z"
+}

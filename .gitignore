@@ -14,12 +14,10 @@ dist-ssr
 .env
 .env.*
 !.env.example
-public/events.json
 
 # Cloudflare Wrangler
 .wrangler
 .dev.vars
-!.dev.vars.example
 
 # Editor directories and files
 .vscode/*

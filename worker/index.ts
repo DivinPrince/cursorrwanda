@@ -1,5 +1,3 @@
-import { getSiteEvents } from '../server/luma'
-
 function normalizePathname(pathname: string): string {
   if (pathname.length > 1 && pathname.endsWith('/')) {
     return pathname.slice(0, -1)
@@ -7,26 +5,23 @@ function normalizePathname(pathname: string): string {
   return pathname
 }
 
-async function eventsResponse(apiKey: string | undefined): Promise<Response> {
-  if (!apiKey) {
-    return Response.json({ error: 'LUMA_API_KEY is not configured' }, { status: 500 })
+async function serveStaticEvents(request: Request, env: Env): Promise<Response | null> {
+  const assetResponse = await env.ASSETS.fetch(
+    new Request(new URL('/events.json', request.url), request),
+  )
+  const contentType = assetResponse.headers.get('content-type') ?? ''
+
+  if (!assetResponse.ok || !contentType.includes('json')) {
+    return null
   }
 
-  try {
-    const payload = await getSiteEvents(apiKey)
-    return Response.json(payload, {
-      headers: {
-        'cache-control': 'public, max-age=300',
-      },
-    })
-  } catch (error) {
-    return Response.json(
-      {
-        error: error instanceof Error ? error.message : 'Failed to fetch Luma events',
-      },
-      { status: 502 },
-    )
-  }
+  return new Response(assetResponse.body, {
+    status: 200,
+    headers: {
+      'content-type': 'application/json',
+      'cache-control': 'public, max-age=300',
+    },
+  })
 }
 
 export default {
@@ -34,7 +29,10 @@ export default {
     const pathname = normalizePathname(new URL(request.url).pathname)
 
     if (pathname === '/api/events' || pathname === '/events.json') {
-      return eventsResponse(env.LUMA_API_KEY)
+      const snapshot = await serveStaticEvents(request, env)
+      if (snapshot) return snapshot
+
+      return Response.json({ error: 'Events snapshot is not available' }, { status: 503 })
     }
 
     return env.ASSETS.fetch(request)
