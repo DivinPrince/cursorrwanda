@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cursorrwanda-com",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-28",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "LUMA_CALENDAR_ID": "cal-94zoOAtNpqPIIHm"
+  }
+}
