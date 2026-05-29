@@ -90,6 +90,19 @@ def apply_cinematic_grade(
     return graded
 
 
+def remove_harsh_highlights(image: np.ndarray) -> np.ndarray:
+    """Gently pull down blown highlights without changing overall color."""
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    l_channel, a_channel, b_channel = cv2.split(lab)
+    l = l_channel.astype(np.float32)
+
+    highlight = smooth_mask(np.clip((l - 182.0) / 58.0, 0.0, 1.0), 16.0)
+    l = l - highlight * np.maximum(l - 176.0, 0.0) * 0.5
+    l = np.clip(l, 0, 255).astype(np.uint8)
+
+    return cv2.cvtColor(cv2.merge([l, a_channel, b_channel]), cv2.COLOR_LAB2BGR)
+
+
 def remove_bulb_flares(image: np.ndarray) -> np.ndarray:
     """Remove starburst streaks from bright ceiling bulbs."""
     height, _width = image.shape[:2]
@@ -125,14 +138,19 @@ def remove_bulb_flares(image: np.ndarray) -> np.ndarray:
     return cv2.inpaint(image, mask, 3, cv2.INPAINT_TELEA)
 
 
+def darken_image(image: np.ndarray, amount: float = 0.12) -> np.ndarray:
+    """Slightly darken the image without changing color."""
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    l_channel, a_channel, b_channel = cv2.split(lab)
+    l = np.clip(l_channel.astype(np.float32) * (1.0 - amount), 0, 255).astype(np.uint8)
+    return cv2.cvtColor(cv2.merge([l, a_channel, b_channel]), cv2.COLOR_LAB2BGR)
+
+
 IMAGE_PROFILES: dict[str, dict[str, float | bool]] = {
     "38319.jpg": {
         "remove_flares": True,
-        "shadow_lift": 0.26,
-        "grade_power": 1.1,
-        "vignette_strength": 0.24,
-        "vignette_min": 0.68,
-        "l_boost": 0.0,
+        "darken_only": True,
+        "darken_amount": 0.12,
     },
 }
 
@@ -141,7 +159,18 @@ def process_image(image: np.ndarray, profile: dict[str, float | bool] | None = N
     profile = profile or {}
     if profile.get("remove_flares"):
         image = remove_bulb_flares(image)
+
+    if profile.get("darken_only"):
+        return darken_image(image, amount=float(profile.get("darken_amount", 0.12)))
+
+    if profile.get("highlights_only"):
+        return remove_harsh_highlights(image)
+
     balanced = fix_lighting(image, shadow_lift=float(profile.get("shadow_lift", 0.22)))
+
+    if profile.get("skip_grade"):
+        return balanced
+
     return apply_cinematic_grade(
         balanced,
         grade_power=float(profile.get("grade_power", 1.14)),
