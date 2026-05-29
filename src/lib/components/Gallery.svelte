@@ -1,22 +1,22 @@
 <script lang="ts">
   const photos = [
     {
-      src: '/gallery/38129.png',
+      src: '/gallery/38129.jpg',
       alt: 'Community meetup in Kigali',
       layout: 'portrait-main',
     },
     {
-      src: '/gallery/38133.png',
+      src: '/gallery/38133.jpg',
       alt: 'Developers collaborating at a Cursor event',
       layout: 'landscape-top',
     },
     {
-      src: '/gallery/38135.png',
+      src: '/gallery/38135.jpg',
       alt: 'Workshop session with the community',
       layout: 'portrait-side',
     },
     {
-      src: '/gallery/38319.png',
+      src: '/gallery/38319.jpg',
       alt: 'Group photo from a Cursor Rwanda gathering',
       layout: 'landscape-bottom',
     },
