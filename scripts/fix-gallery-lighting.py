@@ -14,7 +14,7 @@ def smooth_mask(values: np.ndarray, sigma: float) -> np.ndarray:
     return cv2.GaussianBlur(values.astype(np.float32), (0, 0), sigma)
 
 
-def fix_lighting(image: np.ndarray) -> np.ndarray:
+def fix_lighting(image: np.ndarray, *, shadow_lift: float = 0.22) -> np.ndarray:
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
 
@@ -27,7 +27,7 @@ def fix_lighting(image: np.ndarray) -> np.ndarray:
     l = l - highlight * np.maximum(l - 168.0, 0.0) * 0.72
 
     shadow = smooth_mask(np.clip((92.0 - l) / 92.0, 0.0, 1.0), 22.0)
-    l = l + shadow * (98.0 - l) * 0.22
+    l = l + shadow * (98.0 - l) * shadow_lift
 
     l = 128.0 + (l - 128.0) * 1.06
     l = np.clip(l, 0, 255).astype(np.uint8)
@@ -37,7 +37,14 @@ def fix_lighting(image: np.ndarray) -> np.ndarray:
     return cv2.bilateralFilter(result, d=7, sigmaColor=28, sigmaSpace=28)
 
 
-def apply_cinematic_grade(image: np.ndarray) -> np.ndarray:
+def apply_cinematic_grade(
+    image: np.ndarray,
+    *,
+    grade_power: float = 1.14,
+    vignette_strength: float = 0.32,
+    vignette_min: float = 0.58,
+    l_boost: float = 0.0,
+) -> np.ndarray:
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
 
@@ -48,8 +55,8 @@ def apply_cinematic_grade(image: np.ndarray) -> np.ndarray:
 
     # Darker base with richer mids, similar to the site palette.
     l_norm = np.clip(0.5 + (lum - 0.5) * 1.1, 0.0, 1.0)
-    l_norm = np.power(l_norm, 1.14)
-    l = l_norm * 255.0
+    l_norm = np.power(l_norm, grade_power)
+    l = l_norm * 255.0 + l_boost
 
     highlights = smooth_mask(np.clip((lum - 0.48) / 0.52, 0.0, 1.0), 12.0)
     shadows = smooth_mask(np.clip((0.4 - lum) / 0.4, 0.0, 1.0), 16.0)
@@ -77,7 +84,7 @@ def apply_cinematic_grade(image: np.ndarray) -> np.ndarray:
     y, x = np.indices((rows, cols))
     cx, cy = cols / 2.0, rows / 2.0
     dist = np.sqrt(((x - cx) / cx) ** 2 + ((y - cy) / cy) ** 2)
-    vignette = np.clip(1.0 - dist * 0.32, 0.58, 1.0)
+    vignette = np.clip(1.0 - dist * vignette_strength, vignette_min, 1.0)
     graded = (graded.astype(np.float32) * vignette[:, :, np.newaxis]).astype(np.uint8)
 
     return graded
@@ -118,11 +125,30 @@ def remove_bulb_flares(image: np.ndarray) -> np.ndarray:
     return cv2.inpaint(image, mask, 3, cv2.INPAINT_TELEA)
 
 
-def process_image(image: np.ndarray, *, remove_flares: bool = False) -> np.ndarray:
-    if remove_flares:
+IMAGE_PROFILES: dict[str, dict[str, float | bool]] = {
+    "38319.jpg": {
+        "remove_flares": True,
+        "shadow_lift": 0.26,
+        "grade_power": 1.1,
+        "vignette_strength": 0.24,
+        "vignette_min": 0.68,
+        "l_boost": 0.0,
+    },
+}
+
+
+def process_image(image: np.ndarray, profile: dict[str, float | bool] | None = None) -> np.ndarray:
+    profile = profile or {}
+    if profile.get("remove_flares"):
         image = remove_bulb_flares(image)
-    balanced = fix_lighting(image)
-    return apply_cinematic_grade(balanced)
+    balanced = fix_lighting(image, shadow_lift=float(profile.get("shadow_lift", 0.22)))
+    return apply_cinematic_grade(
+        balanced,
+        grade_power=float(profile.get("grade_power", 1.14)),
+        vignette_strength=float(profile.get("vignette_strength", 0.32)),
+        vignette_min=float(profile.get("vignette_min", 0.58)),
+        l_boost=float(profile.get("l_boost", 0.0)),
+    )
 
 
 def process_file(path: Path, output: Path | None = None) -> None:
@@ -130,8 +156,8 @@ def process_file(path: Path, output: Path | None = None) -> None:
     if image is None:
         raise RuntimeError(f"Could not read image: {path}")
 
-    remove_flares = path.name == "38319.jpg"
-    fixed = process_image(image, remove_flares=remove_flares)
+    profile = IMAGE_PROFILES.get(path.name)
+    fixed = process_image(image, profile)
     target = output or path
     if not cv2.imwrite(str(target), fixed, [int(cv2.IMWRITE_JPEG_QUALITY), 92]):
         raise RuntimeError(f"Could not write image: {target}")
