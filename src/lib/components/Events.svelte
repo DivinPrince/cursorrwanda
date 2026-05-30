@@ -27,8 +27,7 @@
       <p class="section-label">Events</p>
       <h2>Upcoming gatherings.</h2>
       <p class="section-intro">
-        Meetups, workshops, and build nights across Kigali — synced live from our
-        Luma calendar.
+        Meetups, workshops, and build nights across Kigali.
       </p>
     </div>
 
