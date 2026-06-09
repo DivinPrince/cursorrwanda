@@ -20,7 +20,7 @@
   } from '../config'
 
   onMount(() => {
-    document.title = `${HACKATHON_TITLE} · 27 June 2026 · Cursor Community Rwanda`
+    document.title = `${HACKATHON_TITLE} · ${HACKATHON_DATE_LABEL} · Cursor Community Rwanda`
 
     const description = document.querySelector('meta[name="description"]')
     if (description) {
