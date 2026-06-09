@@ -17,7 +17,7 @@
     },
     {
       src: '/gallery/38319.jpg',
-      alt: 'Group photo from a Cursor Rwanda gathering',
+      alt: 'Group photo from a Cursor Rwanda event',
       layout: 'landscape-bottom',
     },
   ] as const;

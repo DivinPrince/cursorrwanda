@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cursor Kigali Hackathon</title>
+  <style>
+    @font-face {
+      font-family: "Cursor Gothic";
+      src: url("{{FONT_REGULAR}}") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "Cursor Gothic";
+      src: url("{{FONT_BOLD}}") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: block;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: {{WIDTH}}px;
+      height: {{HEIGHT}}px;
+      overflow: hidden;
+    }
+
+    body {
+      background: #14120b;
+      color: #edecec;
+      font-family: "Cursor Gothic", system-ui, -apple-system, sans-serif;
+      position: relative;
+    }
+
+    .canvas {
+      width: {{WIDTH}}px;
+      height: {{HEIGHT}}px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .accent-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 28% 40% at 18% 78%,
+        rgba(245, 78, 0, 0.16) 0%,
+        rgba(245, 78, 0, 0) 100%
+      );
+      pointer-events: none;
+    }
+
+    .hero-image {
+      position: absolute;
+      right: {{HERO_RIGHT}}px;
+      top: {{HERO_TOP}}px;
+      width: {{HERO_WIDTH}}px;
+      height: auto;
+      opacity: 0.95;
+    }
+
+    .fade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        #14120b 0%,
+        #14120b 42%,
+        rgba(20, 18, 11, 0.92) 58%,
+        rgba(20, 18, 11, 0.45) 72%,
+        rgba(20, 18, 11, 0) 100%
+      );
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      padding: {{PADDING_Y}}px {{PADDING_X}}px;
+      max-width: {{CONTENT_MAX}}px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .eyebrow {
+      font-size: {{EYEBROW_SIZE}}px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(237, 236, 236, 0.58);
+      margin-bottom: {{EYEBROW_MB}}px;
+    }
+
+    h1 {
+      font-size: {{TITLE_SIZE}}px;
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: {{TITLE_MB}}px;
+    }
+
+    .subtitle {
+      font-size: {{SUBTITLE_SIZE}}px;
+      line-height: 1.45;
+      color: rgba(237, 236, 236, 0.62);
+      margin-bottom: {{SUBTITLE_MB}}px;
+      max-width: {{SUBTITLE_MAX}}px;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: {{FACTS_GAP}}px {{FACTS_COL_GAP}}px;
+      margin-bottom: {{FACTS_MB}}px;
+    }
+
+    .fact dt {
+      font-size: {{FACT_LABEL_SIZE}}px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(237, 236, 236, 0.45);
+      margin-bottom: 4px;
+    }
+
+    .fact dd {
+      font-size: {{FACT_VALUE_SIZE}}px;
+      font-weight: 400;
+      color: #edecec;
+    }
+
+    .accent-line {
+      width: {{ACCENT_WIDTH}}px;
+      height: 2px;
+      background: #f54e00;
+      opacity: 0.85;
+      margin-bottom: {{ACCENT_MB}}px;
+    }
+
+    .logo {
+      height: {{LOGO_HEIGHT}}px;
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="accent-glow"></div>
+    <img class="hero-image" src="{{HERO_IMAGE}}" alt="" />
+    <div class="fade"></div>
+
+    <div class="content">
+      <p class="eyebrow">Hackathon · Kigali</p>
+      <h1>Cursor Kigali hackathon</h1>
+      <p class="subtitle">A full-day build sprint with Rwanda's Cursor community.</p>
+
+      <dl class="facts">
+        <div class="fact">
+          <dt>Date</dt>
+          <dd>Saturday, 27 June 2026</dd>
+        </div>
+        <div class="fact">
+          <dt>Location</dt>
+          <dd>Kigali, Rwanda</dd>
+        </div>
+        <div class="fact">
+          <dt>Format</dt>
+          <dd>Full-day hackathon</dd>
+        </div>
+        <div class="fact">
+          <dt>Who</dt>
+          <dd>Developers, founders, students</dd>
+        </div>
+      </dl>
+
+      <div class="accent-line"></div>
+      <img class="logo" src="{{LOGO_IMAGE}}" alt="Cursor" />
+    </div>
+  </div>
+</body>
+</html>

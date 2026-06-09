@@ -12,7 +12,7 @@
         faster — together in Kigali and across the country.
       </p>
       <div class="hero-actions">
-        <a href="#join" class="btn btn-primary">Join the community</a>
+        <a href="/#join" class="btn btn-primary">Join the community</a>
         <a href="https://luma.com/cursor-kigali-rwanda" target="_blank" rel="noreferrer" class="btn btn-secondary">Subscribe on Luma</a>
       </div>
     </div>

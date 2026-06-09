@@ -1,13 +1,16 @@
 <script lang="ts">
+  import { HACKATHON_PATH } from '../config'
+
   let menuOpen = $state(false);
 
   const navLinks = [
-    { href: '#about', label: 'About' },
-    { href: '#team', label: 'Team' },
-    { href: '#community', label: 'Community' },
-    { href: '#gallery', label: 'Gallery' },
-    { href: '#events', label: 'Events' },
-    { href: '#join', label: 'Join' },
+    { href: '/#about', label: 'About' },
+    { href: '/#team', label: 'Team' },
+    { href: '/#community', label: 'Community' },
+    { href: '/#gallery', label: 'Gallery' },
+    { href: '/#events', label: 'Events' },
+    { href: HACKATHON_PATH, label: 'Hackathon' },
+    { href: '/#join', label: 'Join' },
   ];
 </script>
 
@@ -25,7 +28,7 @@
     </nav>
 
     <div class="actions">
-      <a href="#join" class="btn btn-primary">Join the community</a>
+      <a href="/#join" class="btn btn-primary">Join the community</a>
       <button
         class="menu-toggle"
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
