@@ -23,6 +23,21 @@
         },
       ] satisfies SocialLink[],
     },
+    {
+      name: "Jean Paul Elisa NIYOKWIZERWA",
+      role: "Cursor Rwanda Programs & Partnerships Lead",
+      location: "Kigali, Rwanda",
+      bio: "Leading programs and building partnerships that help grow the Cursor community across Rwanda — connecting developers through workshops, hackathons, and collaborative initiatives",
+      photo: '/team/jean-paul-elisa.jpeg',
+      links: [
+        { href: 'https://me.ndevuspace.com', label: 'me.ndevuspace.com', icon: 'web' },
+        {
+          href: 'https://linkedin.com/in/jean-paul-elisa',
+          label: 'Jean Paul Elisa on LinkedIn',
+          icon: 'linkedin',
+        },
+      ]
+    }
   ];
 </script>
 
