@@ -10,6 +10,7 @@
     "generate:banner": "node scripts/generate-banner.mjs",
     "generate:banner-strip": "node scripts/generate-banner-strip.mjs",
     "fix:gallery": "python3 scripts/fix-gallery-lighting.py public/gallery/",
+    "sync:gallery": "node scripts/sync-gallery.mjs",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "deploy": "npm run build && wrangler deploy",

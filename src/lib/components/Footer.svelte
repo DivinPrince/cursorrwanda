@@ -14,7 +14,7 @@
         <h4>Community</h4>
         <a href="/#about">About</a>
         <a href="/#team">Team</a>
-        <a href="/#gallery">Gallery</a>
+        <a href="/gallery">Gallery</a>
         <a href="/#events">Events</a>
         <a href="/#join">Join</a>
       </div>

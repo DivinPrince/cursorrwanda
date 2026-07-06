@@ -5,3 +5,4 @@ export const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/E9Am2vHdrLj77WLj8Fs
 export const HACKATHON_DATE_LABEL = 'Sunday, 5 July 2026'
 export const HACKATHON_TITLE = 'Cursor Kigali Hackathon'
 export const HACKATHON_PROMO_LABEL = 'Just happened'
+export const HACKATHON_LOCATION = 'ALX Rwanda, Deco Center, Kigali'

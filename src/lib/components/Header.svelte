@@ -5,7 +5,7 @@
     { href: '/#about', label: 'About' },
     { href: '/#team', label: 'Team' },
     { href: '/#community', label: 'Community' },
-    { href: '/#gallery', label: 'Gallery' },
+    { href: '/gallery', label: 'Gallery' },
     { href: '/#events', label: 'Events' },
     { href: '/#join', label: 'Join' },
   ];
