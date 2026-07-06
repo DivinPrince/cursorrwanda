@@ -7,10 +7,6 @@ export type GalleryPhoto = {
 }
 
 export const HACKATHON_GALLERY_PHOTOS = [
-  { src: "/gallery/38129.jpg", alt: "Builders collaborating during the Cursor Kigali Hackathon", width: 1200, height: 1600 },
-  { src: "/gallery/38133.jpg", alt: "Hackathon teams working through build sessions", width: 1600, height: 1200 },
-  { src: "/gallery/38135.jpg", alt: "Workshop and mentoring at the hackathon venue", width: 1200, height: 1600 },
-  { src: "/gallery/38319.jpg", alt: "Group photo from the Cursor Kigali Hackathon", width: 1600, height: 1200 },
   { src: "https://r2.somapix.com/events/eXlxN5jouP9mNU7dWj4Y/photos/1783243480817-0giz1vb7d-DSC_7834.jpg", alt: "Cursor Kigali Hackathon — DSC 7834", width: 1600, height: 1067 },
   { src: "https://r2.somapix.com/events/eXlxN5jouP9mNU7dWj4Y/photos/1783243480817-0wbdhhgfj-DSC_7756.jpg", alt: "Cursor Kigali Hackathon — DSC 7756", width: 1600, height: 1067 },
   { src: "https://r2.somapix.com/events/eXlxN5jouP9mNU7dWj4Y/photos/1783243480817-26bh7kk17-DSC_7826.jpg", alt: "Cursor Kigali Hackathon — DSC 7826", width: 1600, height: 1067 },
@@ -59,4 +55,4 @@ export const HACKATHON_GALLERY_PHOTOS = [
   { src: "https://r2.somapix.com/events/eXlxN5jouP9mNU7dWj4Y/photos/1783243480817-j7r9pzbyc-DSC_7822.jpg", alt: "Cursor Kigali Hackathon — DSC 7822", width: 1600, height: 1067 },
 ] as const satisfies readonly GalleryPhoto[]
 
-export const FEATURED_GALLERY_PHOTOS = HACKATHON_GALLERY_PHOTOS.slice(0, 8) as readonly GalleryPhoto[]
+export const FEATURED_HACKATHON_PHOTOS = HACKATHON_GALLERY_PHOTOS.slice(0, 8) as readonly GalleryPhoto[]

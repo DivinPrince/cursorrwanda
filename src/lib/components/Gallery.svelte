@@ -1,26 +1,47 @@
 <script lang="ts">
   import { HACKATHON_DATE_LABEL, HACKATHON_LOCATION, HACKATHON_TITLE } from '../config'
-  import { FEATURED_GALLERY_PHOTOS } from '../gallery-data'
+  import { CAFE_DATE_LABEL, CAFE_GALLERY_PHOTOS, CAFE_LOCATION, CAFE_TITLE } from '../cafe-gallery'
+  import { FEATURED_HACKATHON_PHOTOS } from '../gallery-data'
   import GalleryLightbox from './GalleryLightbox.svelte'
 
-  let activeIndex = $state<number | null>(null)
+  let cafeActiveIndex = $state<number | null>(null)
+  let hackathonActiveIndex = $state<number | null>(null)
 
-  function openLightbox(index: number) {
-    activeIndex = index
+  function openCafeLightbox(index: number) {
+    cafeActiveIndex = index
   }
 
-  function closeLightbox() {
-    activeIndex = null
+  function closeCafeLightbox() {
+    cafeActiveIndex = null
   }
 
-  function showPrevious() {
-    if (activeIndex === null) return
-    activeIndex = (activeIndex - 1 + FEATURED_GALLERY_PHOTOS.length) % FEATURED_GALLERY_PHOTOS.length
+  function showCafePrevious() {
+    if (cafeActiveIndex === null) return
+    cafeActiveIndex = (cafeActiveIndex - 1 + CAFE_GALLERY_PHOTOS.length) % CAFE_GALLERY_PHOTOS.length
   }
 
-  function showNext() {
-    if (activeIndex === null) return
-    activeIndex = (activeIndex + 1) % FEATURED_GALLERY_PHOTOS.length
+  function showCafeNext() {
+    if (cafeActiveIndex === null) return
+    cafeActiveIndex = (cafeActiveIndex + 1) % CAFE_GALLERY_PHOTOS.length
+  }
+
+  function openHackathonLightbox(index: number) {
+    hackathonActiveIndex = index
+  }
+
+  function closeHackathonLightbox() {
+    hackathonActiveIndex = null
+  }
+
+  function showHackathonPrevious() {
+    if (hackathonActiveIndex === null) return
+    hackathonActiveIndex =
+      (hackathonActiveIndex - 1 + FEATURED_HACKATHON_PHOTOS.length) % FEATURED_HACKATHON_PHOTOS.length
+  }
+
+  function showHackathonNext() {
+    if (hackathonActiveIndex === null) return
+    hackathonActiveIndex = (hackathonActiveIndex + 1) % FEATURED_HACKATHON_PHOTOS.length
   }
 </script>
 
@@ -28,47 +49,103 @@
   <div class="container">
     <div class="section-header">
       <p class="section-label">Gallery</p>
-      <h2>{HACKATHON_TITLE} highlights.</h2>
+      <h2>Moments from the community.</h2>
       <p class="section-intro">
-        {HACKATHON_DATE_LABEL} · {HACKATHON_LOCATION}. Tap any photo to view it larger.
+        Photos from meetups, workshops, and build nights across Kigali.
       </p>
     </div>
 
-    <div class="feature-grid">
-      {#each FEATURED_GALLERY_PHOTOS as photo, index}
-        <button
-          type="button"
-          class="photo"
-          class:wide={photo.width > photo.height}
-          aria-label={`View photo ${index + 1}: ${photo.alt}`}
-          onclick={() => openLightbox(index)}
-        >
-          <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
-        </button>
-      {/each}
+    <div class="event-block">
+      <div class="event-heading">
+        <h3>{CAFE_TITLE}</h3>
+        <p>{CAFE_DATE_LABEL} · {CAFE_LOCATION}</p>
+      </div>
+
+      <div class="bento">
+        {#each CAFE_GALLERY_PHOTOS as photo, index}
+          <button
+            type="button"
+            class="photo {photo.layout}"
+            aria-label={`View photo ${index + 1}: ${photo.alt}`}
+            onclick={() => openCafeLightbox(index)}
+          >
+            <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+          </button>
+        {/each}
+      </div>
+    </div>
+
+    <div class="event-block hackathon-block">
+      <div class="event-heading">
+        <h3>{HACKATHON_TITLE}</h3>
+        <p>{HACKATHON_DATE_LABEL} · {HACKATHON_LOCATION}</p>
+      </div>
+
+      <div class="hackathon-grid">
+        {#each FEATURED_HACKATHON_PHOTOS as photo, index}
+          <button
+            type="button"
+            class="hackathon-photo"
+            class:wide={photo.width > photo.height}
+            aria-label={`View hackathon photo ${index + 1}: ${photo.alt}`}
+            onclick={() => openHackathonLightbox(index)}
+          >
+            <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+          </button>
+        {/each}
+      </div>
     </div>
   </div>
 </section>
 
 <GalleryLightbox
-  photos={FEATURED_GALLERY_PHOTOS}
-  {activeIndex}
-  onClose={closeLightbox}
-  onPrevious={showPrevious}
-  onNext={showNext}
+  photos={CAFE_GALLERY_PHOTOS}
+  activeIndex={cafeActiveIndex}
+  onClose={closeCafeLightbox}
+  onPrevious={showCafePrevious}
+  onNext={showCafeNext}
+/>
+
+<GalleryLightbox
+  photos={FEATURED_HACKATHON_PHOTOS}
+  activeIndex={hackathonActiveIndex}
+  onClose={closeHackathonLightbox}
+  onPrevious={showHackathonPrevious}
+  onNext={showHackathonNext}
 />
 
 <style>
-  .feature-grid {
+  .event-block + .event-block {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .event-heading {
+    margin-bottom: 1.25rem;
+  }
+
+  .event-heading h3 {
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+  }
+
+  .event-heading p {
+    font-size: 0.875rem;
+    color: var(--fg-secondary);
+    margin: 0;
+  }
+
+  .bento {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(12, minmax(0, 1fr));
     gap: 0.875rem;
+    height: clamp(420px, 52vw, 560px);
   }
 
   .photo {
     margin: 0;
-    grid-column: span 4;
-    grid-row: span 2;
     position: relative;
     overflow: hidden;
     border-radius: 14px;
@@ -76,32 +153,26 @@
     background: var(--card);
     padding: 0;
     cursor: zoom-in;
-    min-height: 180px;
   }
 
-  .photo:nth-child(1) {
-    grid-column: span 5;
-    grid-row: span 3;
+  .portrait-main {
+    grid-column: 1 / 6;
+    grid-row: 1 / 13;
   }
 
-  .photo:nth-child(2) {
-    grid-column: span 7;
-    grid-row: span 2;
+  .landscape-top {
+    grid-column: 6 / 13;
+    grid-row: 1 / 6;
   }
 
-  .photo:nth-child(3) {
-    grid-column: span 4;
-    grid-row: span 2;
+  .portrait-side {
+    grid-column: 6 / 9;
+    grid-row: 6 / 13;
   }
 
-  .photo:nth-child(4) {
-    grid-column: span 3;
-    grid-row: span 2;
-  }
-
-  .photo:nth-child(n + 5) {
-    grid-column: span 3;
-    grid-row: span 2;
+  .landscape-bottom {
+    grid-column: 9 / 13;
+    grid-row: 6 / 13;
   }
 
   .photo img {
@@ -110,6 +181,14 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .portrait-main img {
+    object-position: center 20%;
+  }
+
+  .portrait-side img {
+    object-position: center top;
   }
 
   .photo:hover img,
@@ -122,37 +201,109 @@
     outline-offset: 2px;
   }
 
+  .hackathon-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.875rem;
+  }
+
+  .hackathon-photo {
+    margin: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 0;
+    cursor: zoom-in;
+  }
+
+  .hackathon-photo.wide {
+    aspect-ratio: 16 / 10;
+  }
+
+  .hackathon-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hackathon-photo:hover img,
+  .hackathon-photo:focus-visible img {
+    transform: scale(1.04);
+  }
+
+  .hackathon-photo:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   @media (max-width: 900px) {
-    .feature-grid {
+    .bento {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-rows: repeat(10, minmax(0, 1fr));
+      height: clamp(520px, 120vw, 680px);
+      gap: 0.75rem;
+    }
+
+    .portrait-main {
+      grid-column: 1 / 4;
+      grid-row: 1 / 7;
+    }
+
+    .landscape-top {
+      grid-column: 4 / 7;
+      grid-row: 1 / 4;
+    }
+
+    .portrait-side {
+      grid-column: 4 / 7;
+      grid-row: 4 / 7;
+    }
+
+    .landscape-bottom {
+      grid-column: 1 / 7;
+      grid-row: 7 / 11;
+    }
+
+    .hackathon-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .photo,
-    .photo:nth-child(n) {
-      grid-column: auto;
-      grid-row: auto;
-      aspect-ratio: 4 / 5;
-      min-height: 0;
-    }
-
-    .photo.wide,
-    .photo:nth-child(2) {
-      aspect-ratio: 16 / 10;
-      grid-column: span 2;
     }
   }
 
   @media (max-width: 540px) {
-    .feature-grid {
-      grid-template-columns: 1fr;
+    .bento {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto;
+      height: auto;
     }
 
-    .photo,
-    .photo:nth-child(n),
-    .photo.wide,
-    .photo:nth-child(2) {
+    .portrait-main,
+    .landscape-top,
+    .portrait-side,
+    .landscape-bottom {
       grid-column: auto;
+      grid-row: auto;
+      aspect-ratio: 3 / 4;
+    }
+
+    .landscape-top,
+    .landscape-bottom {
       aspect-ratio: 4 / 3;
+    }
+
+    .portrait-main {
+      grid-column: 1 / 3;
+    }
+
+    .landscape-bottom {
+      grid-column: 1 / 3;
+    }
+
+    .hackathon-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
