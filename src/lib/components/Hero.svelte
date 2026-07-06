@@ -1,5 +1,12 @@
 <script lang="ts">
   import KigaliConventionCenter from './KigaliConventionCenter.svelte';
+
+  const partners = [
+    { name: 'kLab', src: '/logos/partners/klab.png', href: 'https://klab.rw', height: '1.4rem' },
+    { name: 'Norrsken', src: '/logos/partners/norrsken.svg', href: 'https://www.norrsken.org', height: '0.95rem' },
+    { name: 'Carnegie Mellon University Africa', src: '/logos/partners/carnegie-mellon.svg', href: 'https://www.africa.engineering.cmu.edu', height: '0.9rem' },
+    { name: 'African Leadership University', src: '/logos/partners/alu.png', href: 'https://www.alueducation.com', height: '1.45rem' },
+  ];
 </script>
 
 <section class="hero">
@@ -26,11 +33,17 @@
     <div class="container trust-inner">
       <p>Trusted by builders across Rwanda's tech ecosystem</p>
       <div class="trust-logos">
-        <span>Kigali</span>
-        <span>norrsken</span>
-        <span>Carnegie Mellon · Africa</span>
-        <span>ALU</span>
-        <span>Startups</span>
+        {#each partners as partner}
+          <a
+            class="trust-logo"
+            href={partner.href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={partner.name}
+          >
+            <img src={partner.src} alt={partner.name} style="height: {partner.height};" />
+          </a>
+        {/each}
       </div>
     </div>
   </div>
@@ -102,10 +115,28 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 2rem;
-    font-size: 0.875rem;
-    color: rgba(237, 236, 236, 0.35);
-    letter-spacing: 0.02em;
+    align-items: center;
+    gap: clamp(1.75rem, 5vw, 3.25rem);
+  }
+
+  .trust-logo {
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+
+  .trust-logo:hover,
+  .trust-logo:focus-visible {
+    opacity: 0.85;
+  }
+
+  .trust-logo img {
+    height: 1.25rem;
+    width: auto;
+    display: block;
+    /* Unify heterogeneous brand marks into muted white silhouettes */
+    filter: brightness(0) invert(1);
   }
 
   @media (max-width: 900px) {
