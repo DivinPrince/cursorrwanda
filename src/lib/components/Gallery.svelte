@@ -2,6 +2,7 @@
   import { HACKATHON_DATE_LABEL, HACKATHON_LOCATION, HACKATHON_TITLE } from '../config'
   import { CAFE_DATE_LABEL, CAFE_GALLERY_PHOTOS, CAFE_LOCATION, CAFE_TITLE } from '../cafe-gallery'
   import { FEATURED_HACKATHON_PHOTOS } from '../gallery-data'
+  import GalleryGrid from './GalleryGrid.svelte'
   import GalleryLightbox from './GalleryLightbox.svelte'
 
   let cafeActiveIndex = $state<number | null>(null)
@@ -70,6 +71,18 @@
             onclick={() => openCafeLightbox(index)}
           >
             <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+            <span class="photo-shade" aria-hidden="true"></span>
+            <span class="photo-icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M6.5 2.5h7v7M13.5 2.5 7 9M9.5 6.5H3.5v7h7v-3.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
           </button>
         {/each}
       </div>
@@ -81,19 +94,7 @@
         <p>{HACKATHON_DATE_LABEL} · {HACKATHON_LOCATION}</p>
       </div>
 
-      <div class="hackathon-grid">
-        {#each FEATURED_HACKATHON_PHOTOS as photo, index}
-          <button
-            type="button"
-            class="hackathon-photo"
-            class:wide={photo.width > photo.height}
-            aria-label={`View hackathon photo ${index + 1}: ${photo.alt}`}
-            onclick={() => openHackathonLightbox(index)}
-          >
-            <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
-          </button>
-        {/each}
-      </div>
+      <GalleryGrid photos={FEATURED_HACKATHON_PHOTOS} onPhotoClick={openHackathonLightbox} />
     </div>
   </div>
 </section>
@@ -153,6 +154,10 @@
     background: var(--card);
     padding: 0;
     cursor: zoom-in;
+    transition:
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s ease,
+      box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .portrait-main {
@@ -196,46 +201,57 @@
     transform: scale(1.04);
   }
 
+  .photo-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(20, 18, 11, 0.6));
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+
+  .photo-icon {
+    position: absolute;
+    right: 0.875rem;
+    bottom: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid rgba(237, 236, 236, 0.18);
+    background: rgba(20, 18, 11, 0.72);
+    color: var(--fg);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .photo-icon svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .photo:hover,
   .photo:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    transform: translateY(-2px);
+    border-color: rgba(245, 78, 0, 0.3);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
   }
 
-  .hackathon-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.875rem;
+  .photo:hover .photo-shade,
+  .photo:focus-visible .photo-shade,
+  .photo:hover .photo-icon,
+  .photo:focus-visible .photo-icon {
+    opacity: 1;
+    transform: translateY(0);
   }
 
-  .hackathon-photo {
-    margin: 0;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    padding: 0;
-    cursor: zoom-in;
-  }
-
-  .hackathon-photo.wide {
-    aspect-ratio: 16 / 10;
-  }
-
-  .hackathon-photo img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .hackathon-photo:hover img,
-  .hackathon-photo:focus-visible img {
-    transform: scale(1.04);
-  }
-
-  .hackathon-photo:focus-visible {
+  .photo:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -267,10 +283,6 @@
       grid-column: 1 / 7;
       grid-row: 7 / 11;
     }
-
-    .hackathon-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   @media (max-width: 540px) {
@@ -300,10 +312,6 @@
 
     .landscape-bottom {
       grid-column: 1 / 3;
-    }
-
-    .hackathon-grid {
-      grid-template-columns: 1fr;
     }
   }
 </style>
