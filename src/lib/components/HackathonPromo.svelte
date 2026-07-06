@@ -25,7 +25,8 @@
   .promo {
     display: block;
     border-bottom: 1px solid var(--border);
-    background: var(--card-01);
+    background: rgba(29, 27, 21, 0.92);
+    backdrop-filter: blur(12px);
     transition: background 0.2s ease;
   }
 

@@ -45,8 +45,10 @@
   })
 </script>
 
-<Header />
-<HackathonPromo />
+<div class="site-chrome">
+  <HackathonPromo />
+  <Header />
+</div>
 <main>
   {#if path === '/gallery'}
     <GalleryPage />
@@ -57,6 +59,12 @@
 <Footer />
 
 <style>
+  .site-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
   main {
     display: flex;
     flex-direction: column;
