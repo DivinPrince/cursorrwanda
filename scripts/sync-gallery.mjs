@@ -1,69 +1,119 @@
 #!/usr/bin/env node
 /**
- * Sync hackathon gallery photos from SomaPix (Firestore).
- * Writes hackathon entries in src/lib/gallery-data.ts.
+ * Sync hackathon gallery photos from Pixieset.
+ *
+ * Paginates the client `loadphotos` endpoint across every page of a gallery
+ * set and writes the hotlinked image URLs into src/lib/gallery-data.ts.
  * Cafe Cursor photos live separately in src/lib/cafe-gallery.ts.
+ *
+ * Override the source via env vars:
+ *   PIXIESET_CUK   collection url key (default: kigalicursorhackathonjuly2026)
+ *   PIXIESET_CID   collection id      (default: 118218575)
+ *   PIXIESET_GS    gallery set slug   (default: highlights)
+ *   PIXIESET_SIZE  path field to link (default: pathXlarge)
  */
-import { readFileSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
 
-const FIRESTORE_KEY = 'AIzaSyD_Itsj6_cNq77FTKWaoIybLa9UsfesbNI'
-const EVENT_ID = 'eXlxN5jouP9mNU7dWj4Y'
+const CUK = process.env.PIXIESET_CUK ?? 'kigalicursorhackathonjuly2026'
+const CID = process.env.PIXIESET_CID ?? '118218575'
+const GS = process.env.PIXIESET_GS ?? 'highlights'
+// thumb | small | medium | large | xlarge | xxlarge — xxlarge is the full
+// available quality (~1600px long edge). The grid downsizes per-tile at
+// render time; this URL is what the lightbox / download uses.
+const SIZE = process.env.PIXIESET_SIZE ?? 'pathXxlarge'
+
+const ENDPOINT = 'https://lanova.pixieset.com/client/loadphotos/'
+const MAX_PAGES = 500 // safety valve against a runaway loop
 
 function altFromFileName(fileName) {
   const base = fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
   return `Cursor Kigali Hackathon — ${base}`
 }
 
-async function fetchSomaPixPhotos() {
-  const response = await fetch(
-    `https://firestore.googleapis.com/v1/projects/havityerp/databases/(default)/documents:runQuery?key=${FIRESTORE_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        structuredQuery: {
-          from: [{ collectionId: 'photos' }],
-          where: {
-            fieldFilter: {
-              field: { fieldPath: 'eventId' },
-              op: 'EQUAL',
-              value: { stringValue: EVENT_ID },
-            },
-          },
-          limit: 500,
-        },
-      }),
+/** Protocol-relative Pixieset paths (`//images.pixieset.com/...`) → https URL. */
+function toHttps(path) {
+  if (!path) return path
+  if (path.startsWith('//')) return `https:${path}`
+  if (path.startsWith('http')) return path
+  return `https://${path}`
+}
+
+/** Aspect-preserving dimensions of the delivered image, capped at maxWidth/Height. */
+function displayDimensions(photo) {
+  const width = Number(photo.width) || 1600
+  const height = Number(photo.height) || 1067
+  const maxWidth = Number(photo.maxWidth) || 1600
+  const maxHeight = Number(photo.maxHeight) || 1600
+  const scale = Math.min(maxWidth / width, maxHeight / height, 1)
+  return {
+    width: Math.round(width * scale),
+    height: Math.round(height * scale),
+  }
+}
+
+async function fetchPage(page) {
+  const url = `${ENDPOINT}?cuk=${encodeURIComponent(CUK)}&cid=${encodeURIComponent(
+    CID,
+  )}&gs=${encodeURIComponent(GS)}&page=${page}`
+
+  const response = await fetch(url, {
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+      Accept: 'application/json, text/javascript, */*; q=0.01',
     },
-  )
+  })
 
   if (!response.ok) {
-    throw new Error(`Firestore query failed: ${response.status}`)
+    throw new Error(`loadphotos page ${page} failed: HTTP ${response.status}`)
   }
 
-  const rows = await response.json()
+  const payload = await response.json()
+  if (payload.status !== 'success') {
+    throw new Error(
+      `loadphotos page ${page} returned status "${payload.status}": ${payload.content}`,
+    )
+  }
+
+  const items = payload.content ? JSON.parse(payload.content) : []
+  return { items, isLastPage: Boolean(payload.isLastPage) }
+}
+
+async function fetchPixiesetPhotos() {
   const photos = []
+  const seen = new Set()
 
-  for (const row of rows) {
-    const doc = row.document
-    if (!doc?.fields) continue
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const { items, isLastPage } = await fetchPage(page)
 
-    const url = doc.fields.url?.stringValue
-    const fileName = doc.fields.fileName?.stringValue
-    if (!url || !fileName) continue
+    for (const item of items) {
+      if (seen.has(item.id)) continue
+      seen.add(item.id)
 
-    photos.push({
-      src: url,
-      alt: altFromFileName(fileName),
-      width: Number(doc.fields.width?.integerValue ?? 1600),
-      height: Number(doc.fields.height?.integerValue ?? 1067),
-    })
+      const src = toHttps(item[SIZE] ?? item.pathXlarge ?? item.pathLarge)
+      if (!src) continue
+
+      const { width, height } = displayDimensions(item)
+      photos.push({
+        src,
+        alt: altFromFileName(item.name ?? `photo-${item.id}`),
+        width,
+        height,
+      })
+    }
+
+    process.stdout.write(`\rFetched page ${page} — ${photos.length} photos`)
+
+    if (isLastPage || items.length === 0) break
   }
 
+  process.stdout.write('\n')
   return photos
 }
 
@@ -91,7 +141,13 @@ export const FEATURED_HACKATHON_PHOTOS = HACKATHON_GALLERY_PHOTOS.slice(0, 8) as
 }
 
 async function main() {
-  const photos = await fetchSomaPixPhotos()
+  console.log(`Syncing Pixieset gallery "${GS}" (cid ${CID}) at ${SIZE}…`)
+  const photos = await fetchPixiesetPhotos()
+
+  if (photos.length === 0) {
+    throw new Error('No photos returned — refusing to overwrite gallery-data.ts')
+  }
+
   const outputPath = join(root, 'src/lib/gallery-data.ts')
   writeFileSync(outputPath, toHackathonModule(photos), 'utf8')
   console.log(`Wrote ${photos.length} hackathon photos to ${outputPath}`)

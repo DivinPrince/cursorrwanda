@@ -1,50 +1,58 @@
 import type { GalleryPhoto } from './gallery-data'
 
-export type MosaicSize = 'feature' | 'wide' | 'tall' | 'standard'
-
-export type MosaicPhoto = GalleryPhoto & {
-  mosaic: MosaicSize
-  rowSpan: number
-  aspectRatio: number
+export type MasonryTile = GalleryPhoto & {
+  /** Position in the original list (for lightbox navigation). */
+  index: number
+  /** Aspect ratio (width / height). */
+  ratio: number
 }
 
-const ROW_UNIT_PX = 42
+/**
+ * Pixieset-style masonry: a fixed number of equal-width columns where each
+ * photo is dropped into the currently shortest column, preserving aspect
+ * ratio. Balances column heights with no cropping and no wasted space.
+ */
+export function buildMasonryColumns(
+  photos: readonly GalleryPhoto[],
+  columnCount: number,
+): MasonryTile[][] {
+  const columns: MasonryTile[][] = Array.from({ length: columnCount }, () => [])
+  const heights = new Array(columnCount).fill(0)
 
-const FEATURE_INDICES = new Set([0, 8, 17, 27, 38])
+  photos.forEach((photo, index) => {
+    const ratio = (photo.width || 3) / (photo.height || 2)
 
-export function buildMosaicLayout(photos: readonly GalleryPhoto[]): MosaicPhoto[] {
-  return photos.map((photo, index) => {
-    const ratio = photo.width / photo.height
-    const mosaic = pickMosaicSize(ratio, index)
-    const rowSpan = rowSpanFor(mosaic, ratio)
-    return { ...photo, mosaic, rowSpan, aspectRatio: ratio }
-  })
-}
-
-function pickMosaicSize(ratio: number, index: number): MosaicSize {
-  if (FEATURE_INDICES.has(index)) return 'feature'
-  if (ratio >= 1.4) return 'wide'
-  if (ratio <= 0.78) return 'tall'
-  if (ratio >= 1.15 && index % 4 === 2) return 'wide'
-  if (ratio <= 0.92 && index % 5 === 3) return 'tall'
-  return 'standard'
-}
-
-function rowSpanFor(size: MosaicSize, ratio: number): number {
-  switch (size) {
-    case 'feature':
-      return Math.max(8, Math.round(9 / ratio))
-    case 'wide':
-      return Math.max(4, Math.round(4.5 / ratio))
-    case 'tall':
-      return Math.max(7, Math.round(8 * (1 / ratio) * 0.5))
-    case 'standard':
-      return Math.max(4, Math.round(5 / ratio))
-    default: {
-      const _exhaustive: never = size
-      return _exhaustive
+    // Find the shortest column.
+    let target = 0
+    for (let i = 1; i < columnCount; i++) {
+      if (heights[i] < heights[target]) target = i
     }
-  }
+
+    columns[target].push({ ...photo, index, ratio })
+    // At unit column width, a tile's height is 1 / ratio.
+    heights[target] += 1 / ratio
+  })
+
+  return columns
 }
 
-export const MOSAIC_ROW_UNIT = `${ROW_UNIT_PX}px`
+/** Column count based on the available width (container is capped at 1200px). */
+export function columnCountFor(containerWidth: number): number {
+  if (containerWidth < 520) return 2
+  if (containerWidth < 900) return 3
+  if (containerWidth < 1400) return 4
+  return 5
+}
+
+const SIZE_TOKEN = /-(?:thumb|small|medium|large|xlarge|xxlarge)\.jpg(\?.*)?$/i
+
+/**
+ * Swap a Pixieset image URL to a different size variant. Grid tiles use a
+ * lighter size than the full-resolution src kept for the lightbox/download.
+ */
+export function pixiesetSize(
+  src: string,
+  size: 'thumb' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge',
+): string {
+  return src.replace(SIZE_TOKEN, `-${size}.jpg$1`)
+}
