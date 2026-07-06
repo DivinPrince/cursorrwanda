@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * Sync hackathon gallery photos from SomaPix (Firestore) and merge with
- * locally hosted Pixieset previews. Writes src/lib/gallery-data.ts.
+ * Sync hackathon gallery photos from SomaPix (Firestore).
+ * Writes hackathon entries in src/lib/gallery-data.ts.
+ * Cafe Cursor photos live separately in src/lib/cafe-gallery.ts.
  */
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -12,33 +13,6 @@ const root = join(__dirname, '..')
 
 const FIRESTORE_KEY = 'AIzaSyD_Itsj6_cNq77FTKWaoIybLa9UsfesbNI'
 const EVENT_ID = 'eXlxN5jouP9mNU7dWj4Y'
-
-const LOCAL_PIXIESET_PHOTOS = [
-  {
-    src: '/gallery/38129.jpg',
-    alt: 'Builders collaborating during the Cursor Kigali Hackathon',
-    width: 1200,
-    height: 1600,
-  },
-  {
-    src: '/gallery/38133.jpg',
-    alt: 'Hackathon teams working through build sessions',
-    width: 1600,
-    height: 1200,
-  },
-  {
-    src: '/gallery/38135.jpg',
-    alt: 'Workshop and mentoring at the hackathon venue',
-    width: 1200,
-    height: 1600,
-  },
-  {
-    src: '/gallery/38319.jpg',
-    alt: 'Group photo from the Cursor Kigali Hackathon',
-    width: 1600,
-    height: 1200,
-  },
-]
 
 function altFromFileName(fileName) {
   const base = fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
@@ -93,7 +67,7 @@ async function fetchSomaPixPhotos() {
   return photos
 }
 
-function toModule(photos) {
+function toHackathonModule(photos) {
   const lines = photos.map((photo) => {
     const src = JSON.stringify(photo.src)
     const alt = JSON.stringify(photo.alt)
@@ -112,19 +86,15 @@ export const HACKATHON_GALLERY_PHOTOS = [
 ${lines.join('\n')}
 ] as const satisfies readonly GalleryPhoto[]
 
-export const FEATURED_GALLERY_PHOTOS = HACKATHON_GALLERY_PHOTOS.slice(0, 8) as readonly GalleryPhoto[]
+export const FEATURED_HACKATHON_PHOTOS = HACKATHON_GALLERY_PHOTOS.slice(0, 8) as readonly GalleryPhoto[]
 `
 }
 
 async function main() {
-  const somapixPhotos = await fetchSomaPixPhotos()
-  const merged = [...LOCAL_PIXIESET_PHOTOS, ...somapixPhotos]
-
+  const photos = await fetchSomaPixPhotos()
   const outputPath = join(root, 'src/lib/gallery-data.ts')
-  writeFileSync(outputPath, toModule(merged), 'utf8')
-  console.log(
-    `Wrote ${merged.length} photos (${LOCAL_PIXIESET_PHOTOS.length} local + ${somapixPhotos.length} SomaPix) to ${outputPath}`,
-  )
+  writeFileSync(outputPath, toHackathonModule(photos), 'utf8')
+  console.log(`Wrote ${photos.length} hackathon photos to ${outputPath}`)
 }
 
 main().catch((error) => {
