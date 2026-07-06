@@ -1,3 +1,19 @@
+<script lang="ts">
+  import { onMount } from 'svelte'
+  import { loadEvents } from '../luma'
+
+  let eventsHosted = $state<number | null>(null)
+
+  onMount(async () => {
+    try {
+      const payload = await loadEvents()
+      eventsHosted = payload.upcoming.length + payload.past.length
+    } catch {
+      // Keep the stat hidden if events cannot be loaded.
+    }
+  })
+</script>
+
 <section id="community" class="section">
   <div class="container">
     <div class="section-header centered">
@@ -11,8 +27,8 @@
         <span class="stat-label">Community members</span>
       </div>
       <div class="stat">
-        <span class="stat-value">1</span>
-        <span class="stat-label">Event hosted</span>
+        <span class="stat-value">{eventsHosted ?? '—'}</span>
+        <span class="stat-label">Events hosted</span>
       </div>
       <div class="stat">
         <span class="stat-value city">Kigali</span>
