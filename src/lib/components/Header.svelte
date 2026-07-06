@@ -41,9 +41,7 @@
 
 <style>
   .header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    position: relative;
     height: var(--nav-height);
     border-bottom: 1px solid var(--border);
     background: rgba(20, 18, 11, 0.82);
@@ -124,8 +122,11 @@
 
   @media (max-width: 768px) {
     .nav {
-      position: fixed;
-      inset: var(--nav-height) 0 auto 0;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1;
       flex-direction: column;
       align-items: stretch;
       padding: 1.5rem 1.5rem 2rem;
