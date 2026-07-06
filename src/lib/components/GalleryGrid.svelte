@@ -49,7 +49,8 @@
       data-tile
       class="tile {photo.mosaic}"
       style:--row-span={photo.rowSpan}
-      style:--delay="{index * 45}ms"
+      style:--aspect-ratio={photo.aspectRatio}
+      style:--delay="{index * 40}ms"
       aria-label={`View photo ${index + 1} of ${photos.length}: ${photo.alt}`}
       onclick={() => onPhotoClick(index)}
     >
@@ -59,7 +60,7 @@
         <span class="tile-icon">
           <svg viewBox="0 0 16 16" fill="none">
             <path
-              d="M6.5 2.5h7v7M13.5 2.5 7 9M9.5 6.5H3.5v7h7v-3.5"
+              d="M6.25 6.25 10.75 2.75M10.75 2.75H7.5M10.75 2.75v3.25M9.75 9.75H3.25V3.25h3"
               stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
@@ -76,9 +77,9 @@
   .mosaic {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: var(--row-unit);
-    grid-auto-flow: dense;
-    gap: 0.75rem;
+    grid-auto-rows: auto;
+    grid-auto-flow: row;
+    gap: 0.5rem;
   }
 
   .tile {
@@ -87,10 +88,12 @@
     padding: 0;
     overflow: hidden;
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 10px;
     background: var(--card);
     cursor: zoom-in;
-    grid-row: span var(--row-span);
+    aspect-ratio: var(--aspect-ratio);
+    grid-row: span 1;
+    grid-column: span 1;
     transform: translateY(0);
     transition:
       transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
@@ -175,22 +178,6 @@
     outline-offset: 2px;
   }
 
-  .standard {
-    grid-column: span 1;
-  }
-
-  .wide {
-    grid-column: span 2;
-  }
-
-  .tall {
-    grid-column: span 1;
-  }
-
-  .feature {
-    grid-column: span 2;
-  }
-
   .animated .tile {
     opacity: 0;
     transform: translateY(22px);
@@ -215,7 +202,14 @@
   @media (min-width: 700px) {
     .mosaic {
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 0.875rem;
+      grid-auto-rows: var(--row-unit);
+      grid-auto-flow: dense;
+      gap: 0.625rem;
+    }
+
+    .tile {
+      aspect-ratio: auto;
+      grid-row: span var(--row-span);
     }
 
     .standard {
@@ -238,7 +232,7 @@
   @media (min-width: 1024px) {
     .mosaic {
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .standard {
