@@ -2,7 +2,7 @@
   import { HACKATHON_DATE_LABEL, HACKATHON_PROMO_LABEL, HACKATHON_TITLE } from '../config'
 </script>
 
-<a href="/#gallery" class="promo">
+<a href="/gallery" class="promo">
   <div class="container promo-inner">
     <span class="promo-label">{HACKATHON_PROMO_LABEL}</span>
     <span class="promo-title">{HACKATHON_TITLE}</span>
