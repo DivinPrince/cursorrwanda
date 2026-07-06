@@ -31,6 +31,17 @@
     name="description"
     content="Photos from the Cursor Kigali Hackathon on {HACKATHON_DATE_LABEL} at {HACKATHON_LOCATION}."
   />
+  <meta
+    property="og:image"
+    content="https://images.pixieset.com/575812811/eca96d24080b5025ade8d9d71ca34906-cover.jpg"
+  />
+  <meta property="og:image:width" content="1600" />
+  <meta property="og:image:height" content="1068" />
+  <meta property="og:image:alt" content="Cursor Kigali Hackathon — developers building together at ALX Rwanda" />
+  <meta
+    name="twitter:image"
+    content="https://images.pixieset.com/575812811/eca96d24080b5025ade8d9d71ca34906-cover.jpg"
+  />
 </svelte:head>
 
 <section class="gallery-page section">
