@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { HACKATHON_DATE_LABEL, HACKATHON_TITLE } from '../config'
+  import { HACKATHON_DATE_LABEL, HACKATHON_PROMO_LABEL, HACKATHON_TITLE } from '../config'
 </script>
 
 <a href="/#events" class="promo">
   <div class="container promo-inner">
-    <span class="promo-label">Up next</span>
+    <span class="promo-label">{HACKATHON_PROMO_LABEL}</span>
     <span class="promo-title">{HACKATHON_TITLE}</span>
     <span class="promo-date">{HACKATHON_DATE_LABEL}</span>
     <span class="promo-link" aria-hidden="true">
