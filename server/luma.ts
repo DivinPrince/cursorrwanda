@@ -70,6 +70,8 @@ function formatLocation(entry: LumaEventEntry): string {
   return 'Kigali, Rwanda'
 }
 
+const PAST_EVENT_DESCRIPTION_MAX_LENGTH = 180
+
 function stripMarkdown(text: string): string {
   return text
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -78,10 +80,34 @@ function stripMarkdown(text: string): string {
     .trim()
 }
 
+function truncateDescription(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text
+
+  const slice = text.slice(0, maxLength)
+  const lastSentenceEnd = Math.max(slice.lastIndexOf('. '), slice.lastIndexOf('! '), slice.lastIndexOf('? '))
+  const lastSpace = slice.trimEnd().lastIndexOf(' ')
+
+  let clipped: string
+  if (lastSentenceEnd >= maxLength * 0.5) {
+    clipped = slice.slice(0, lastSentenceEnd + 1)
+  } else if (lastSpace >= maxLength * 0.6) {
+    clipped = slice.slice(0, lastSpace)
+  } else {
+    clipped = slice.trimEnd()
+  }
+
+  return `${clipped.trimEnd()}…`
+}
+
 function toSiteEvent(entry: LumaEventEntry, status: 'Upcoming' | 'Past'): SiteEvent {
-  const description =
+  const rawDescription =
     stripMarkdown(entry.description_md || entry.description || '') ||
     'Community event on the Cursor Kigali calendar.'
+
+  const description =
+    status === 'Past'
+      ? truncateDescription(rawDescription, PAST_EVENT_DESCRIPTION_MAX_LENGTH)
+      : rawDescription
 
   return {
     id: entry.id,
