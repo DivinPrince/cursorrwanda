@@ -6,6 +6,7 @@
     { href: '/#team', label: 'Team' },
     { href: '/#community', label: 'Community' },
     { href: '/gallery', label: 'Gallery' },
+    { href: '/#winners', label: 'Winners' },
     { href: '/#events', label: 'Events' },
     { href: '/#join', label: 'Join' },
   ];
